@@ -25,7 +25,7 @@ setup(
     name='django-oss-storage-full',
     version=version,
     description='Django Aliyun OSS (Object Storage Service) storage',
-    long_description=readme,
+    long_description='',
     packages=['django_oss_storage'],
     install_requires=['django>=1.10',
                       'oss2>=2.3.3'],
