@@ -114,3 +114,16 @@ License
 =======
 
 - `MIT <https://github.com/aliyun/django-oss-storage/blob/master/LICENSE>`_.
+
+Extra
+=====
+
+.. code-block:: bash
+
+- OSS_SIGN_URL_ENABLE: a choice to turn signature off when object is public
+- OSS_SIGN_URL_PARAMS: sign with params, it's usefull when add some parameters, like response-cache-control
+- OSS_SLASH_SAFE: use the oss SDK to deal with slash in key
+
+- OSS_OVERWRITE: if True, overwrite when object exists, the default behaviors same as django Storage
+
+- OSS_USER_DOMAIN: https://help.aliyun.com/document_detail/173722.html
