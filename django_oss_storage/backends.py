@@ -59,13 +59,14 @@ class OssStorage(Storage):
     """
 
     bucket_name_key = 'OSS_BUCKET_NAME'
+    user_domain_key = 'OSS_USER_DOMAIN'
 
     def __init__(self, access_key_id=None, access_key_secret=None, end_point=None, bucket_name=None, expire_time=None):
         self.access_key_id = access_key_id if access_key_id else _get_config('OSS_ACCESS_KEY_ID')
         self.access_key_secret = access_key_secret if access_key_secret else _get_config('OSS_ACCESS_KEY_SECRET')
         self.end_point = _normalize_endpoint(end_point if end_point else _get_config('OSS_ENDPOINT'))
-        self.user_domain = _normalize_endpoint(_get_config('OSS_USER_DOMAIN')) if _get_config('OSS_USER_DOMAIN',
-                                                                                              default="") else None
+        self.user_domain = _normalize_endpoint(_get_config(self.user_domain_key)) if _get_config(self.user_domain_key,
+                                                                                                 default="") else None
         self.bucket_name = bucket_name if bucket_name else _get_config(self.bucket_name_key)
         self.expire_time = expire_time if expire_time else int(
             _get_config('OSS_EXPIRE_TIME', default=60 * 60 * 24 * 30))
@@ -255,6 +256,7 @@ class OssStorage(Storage):
 
 class OssMediaStorage(OssStorage):
     bucket_name_key = 'OSS_BUCKET_NAME_MEDIA'
+    user_domain_key = 'OSS_USER_DOMAIN_MEDIA'
 
     def __init__(self):
         self.location = settings.MEDIA_URL
@@ -264,6 +266,7 @@ class OssMediaStorage(OssStorage):
 
 class OssStaticStorage(OssStorage):
     bucket_name_key = 'OSS_BUCKET_NAME_STATIC'
+    user_domain_key = 'OSS_USER_DOMAIN_STATIC'
 
     def __init__(self):
         self.location = settings.STATIC_URL
