@@ -31,4 +31,3 @@ jobs:
         export TWINE_USERNAME=__token__
         export TWINE_PASSWORD=${{ secrets.PYPI_TOKEN }}
         twine upload dist/*
-up
