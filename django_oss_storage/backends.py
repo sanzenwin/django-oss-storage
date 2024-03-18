@@ -43,6 +43,7 @@ def _normalize_endpoint(endpoint):
     else:
         return endpoint
 
+
 class OssError(Exception):
     def __init__(self, value):
         self.value = value
@@ -50,19 +51,24 @@ class OssError(Exception):
     def __str__(self):
         return repr(self.value)
 
+
 @deconstructible
 class OssStorage(Storage):
     """
     Aliyun OSS Storage
     """
 
+    bucket_name_key = 'OSS_BUCKET_NAME'
+
     def __init__(self, access_key_id=None, access_key_secret=None, end_point=None, bucket_name=None, expire_time=None):
         self.access_key_id = access_key_id if access_key_id else _get_config('OSS_ACCESS_KEY_ID')
         self.access_key_secret = access_key_secret if access_key_secret else _get_config('OSS_ACCESS_KEY_SECRET')
         self.end_point = _normalize_endpoint(end_point if end_point else _get_config('OSS_ENDPOINT'))
-        self.user_domain = _normalize_endpoint(_get_config('OSS_USER_DOMAIN')) if _get_config('OSS_USER_DOMAIN', default="") else None
-        self.bucket_name = bucket_name if bucket_name else _get_config('OSS_BUCKET_NAME')
-        self.expire_time = expire_time if expire_time else int(_get_config('OSS_EXPIRE_TIME', default=60*60*24*30))
+        self.user_domain = _normalize_endpoint(_get_config('OSS_USER_DOMAIN')) if _get_config('OSS_USER_DOMAIN',
+                                                                                              default="") else None
+        self.bucket_name = bucket_name if bucket_name else _get_config(self.bucket_name_key)
+        self.expire_time = expire_time if expire_time else int(
+            _get_config('OSS_EXPIRE_TIME', default=60 * 60 * 24 * 30))
 
         self.sign_url_enabled = getattr(settings, 'OSS_SIGN_URL_ENABLED', True)
         self.sign_url_params = getattr(settings, 'OSS_SIGN_URL_PARAMS', None)
@@ -73,13 +79,12 @@ class OssStorage(Storage):
         self.auth = Auth(self.access_key_id, self.access_key_secret)
         self.service = Service(self.auth, self.end_point)
         self.bucket = Bucket(self.auth, self.end_point, self.bucket_name, is_cname=False)
-        self.bucket_signer = self.bucket # for url signature
+        self.bucket_signer = self.bucket  # for url signature
 
         if self.user_domain:
             self.bucket_signer = Bucket(self.auth, self.user_domain, self.bucket_name, is_cname=True)
             if self.end_point == self.user_domain:
                 self.bucket = self.bucket_signer
-
 
         # try to get bucket acl to check bucket exist or not
         try:
@@ -119,7 +124,7 @@ class OssStorage(Storage):
         logger().debug("target name: %s", target_name)
         try:
             # Load the key into a temporary file
-            tmpf = SpooledTemporaryFile(max_size=10*1024*1024)  # 10MB
+            tmpf = SpooledTemporaryFile(max_size=10 * 1024 * 1024)  # 10MB
             obj = self.bucket.get_object(target_name)
             logger().info("content length: %d, requestid: %s", obj.content_length, obj.request_id)
             if obj.content_length is None:
@@ -225,7 +230,8 @@ class OssStorage(Storage):
         if self.bucket_acl != BUCKET_ACL_PRIVATE or self.sign_url_enabled is False:
             url = self.bucket_signer._make_url(self.bucket_name, key, slash_safe=self.url_slash_safe)
         else:
-            url = self.bucket_signer.sign_url('GET', key, expires=self.expire_time, params=self.sign_url_params, slash_safe=self.url_slash_safe)
+            url = self.bucket_signer.sign_url('GET', key, expires=self.expire_time, params=self.sign_url_params,
+                                              slash_safe=self.url_slash_safe)
         return url
 
     def delete(self, name):
@@ -246,17 +252,22 @@ class OssStorage(Storage):
         else:
             return super().get_available_name(name, max_length)
 
+
 class OssMediaStorage(OssStorage):
+    bucket_name_key = 'OSS_BUCKET_NAME_MEDIA'
+
     def __init__(self):
         self.location = settings.MEDIA_URL
-        logger().debug("locatin: %s", self.location)
+        logger().debug("location: %s", self.location)
         super(OssMediaStorage, self).__init__()
 
 
 class OssStaticStorage(OssStorage):
+    bucket_name_key = 'OSS_BUCKET_NAME_STATIC'
+
     def __init__(self):
         self.location = settings.STATIC_URL
-        logger().info("locatin: %s", self.location)
+        logger().info("location: %s", self.location)
         super(OssStaticStorage, self).__init__()
 
 
