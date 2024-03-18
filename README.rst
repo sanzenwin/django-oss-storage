@@ -126,4 +126,8 @@ Extra
 
 - OSS_OVERWRITE: if True, overwrite when object exists, the default behaviors same as django Storage
 
-- OSS_USER_DOMAIN: https://help.aliyun.com/document_detail/173722.html
+- OSS_BUCKET_NAME_MEDIA
+- OSS_BUCKET_NAME_STATIC
+
+- OSS_USER_DOMAIN_MEDIA
+- OSS_USER_DOMAIN_STATIC
